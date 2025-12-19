@@ -1,0 +1,280 @@
+          <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Betting Predictions - KenPom Analytics</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-navy: #1a2332;
+            --secondary-gold: #d4af37;
+            --accent-blue: #00a8ff;
+            --bg-charcoal: #2c3e50;
+            --text-light: #ecf0f1;
+            --success-green: #27ae60;
+            --warning-amber: #f39c12;
+            --danger-red: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--bg-charcoal) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+        
+        .font-display { font-family: 'Poppins', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--secondary-gold), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--accent-blue);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
+        }
+        
+        .stats-counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-gold);
+        }
+        
+        .confidence-meter {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger-red), var(--warning-amber), var(--success-green));
+            transition: width 0.6s ease;
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading-spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particle-background" class="particle-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-display font-bold gradient-text">🏀 BetPredict AI</h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-8">
+                            <a href="index.html" class="nav-link active text-white font-medium">Dashboard</a>
+                            <a href="analytics.html" class="nav-link text-gray-300 hover:text-white font-medium">Analytics</a>
+                            <a href="teams.html" class="nav-link text-gray-300 hover:text-white font-medium">Teams</a>
+                            <a href="settings.html" class="nav-link text-gray-300 hover:text-white font-medium">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-4">
+                        <div class="text-sm text-gray-400">Live Games:</div>
+                        <div class="stats-counter font-mono text-lg" id="live-games-count">0</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+n                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="auto-refresh-toggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                        <span class="text-sm text-gray-400">Auto-refresh</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-6xl font-display font-bold mb-4">
+                <span class="gradient-text">AI-Powered</span><br>
+                <span class="text-white\">Basketball Predictions</span>
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Advanced machine learning models using KenPom analytics, XGBoost algorithms, and Monte Carlo simulations to predict college basketball spreads with unprecedented accuracy.
+            </p>
+            
+            <!-- Live Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="glass-card rounded-lg p-6">
+                    <div class="stats-counter font-mono" id="today-games">0</div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wide">Today's Games</div>
+                </div>
+                <div class="glass-card rounded-lg p-6">
+                    <div class="stats-counter font-mono" id="strong-plays">0</div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wide">Strong Plays</div>
+                </div>
+                <div class="glass-card rounded-lg p-6">
+                    <div class="stats-counter font-mono" id="model-accuracy">0%</div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wide">Model Accuracy</div>
+                </div>
+                <div class="glass-card rounded-lg p-6">
+                    <div class="stats-counter font-mono" id="roi-percent">0%</div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wide">ROI This Season</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="glass-card rounded-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+                <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Conference</label>
+                        <select id="conference-filter" class="bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Conferences</option>
+                            <option value="ACC">ACC</option>
+                            <option value="B10">Big Ten</option>
+                            <option value="B12">Big 12</option>
+                            <option value="SEC">SEC</option>
+                            <option value="P12">Pac-12</option>
+                            <option value="BE">Big East</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Bet Value</label>
+                        <select id="value-filter" class="bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Plays</option>
+                            <option value="STRONG_VALUE">Strong Value Only</option>
+                            <option value="MEDIUM_VALUE">Medium+ Value</option>
+                            <option value="WEAK_VALUE">All Value Plays</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="refresh-predictions" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2">
+                        <div class="loading-spinner hidden" id="refresh-spinner"></div>
+                        <span>Refresh Predictions</span>
+                    </button>
+                    <button id="export-predictions" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors duration-200">
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Predictions -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-display font-bold text-white">Today's Predictions</h2>
+                <div class="text-sm text-gray-400">
+                    Last updated: <span id="last-updated" class="font-mono">--:--</span>
+n                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-12">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-400">Loading today's predictions...</p>
+            </div>
+            
+            <!-- Predictions Container -->
+            <div id="predictions-container" class="space-y-4 hidden">
+                <!-- Game cards will be dynamically inserted here -->
+            </div>
+            
+            <!-- No Predictions State -->
+            <div id="no-predictions" class="text-center py-12 hidden">
+                <div class="text-6xl mb-4\">🏀</div>
+                <h3 class="text-xl font-semibold text-white mb-2\">No Games Today</h3>
+                <p class="text-gray-400\">Check back later for upcoming games and predictions.</p>
+            </div>
+        </div>
+        
+        <!-- Featured Value Plays -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-display font-bold text-white mb-6\">Featured Value Plays</h2>
+            <div class="splide\" id=\"value-plays-carousel\">\n                <div class=\"splide__track\">\n                    <ul class=\"splide__list\" id=\"value-plays-list\">\n                        <!-- Value plays will be dynamically inserted here -->\n                    </ul>\n                </div>\n            </div>\n        </div>\n        \n        <!-- Quick Stats -->\n        <div class=\"grid grid-cols-1 md:grid-cols-2 gap-8 mb-8\">\n            <!-- Performance Chart -->\n            <div class=\"glass-card rounded-lg p-6\">\n                <h3 class=\"text-xl font-semibold text-white mb-4\">Model Performance</h3>\n                <div id=\"performance-chart\" style=\"height: 300px;\"></div>\n            </div>\n            \n            <!-- Conference Breakdown -->\n            <div class=\"glass-card rounded-lg p-6\">\n                <h3 class=\"text-xl font-semibold text-white mb-4\">Conference Breakdown</h3>\n                <div id=\"conference-chart\" style=\"height: 300px;\"></div>\n            </div>\n        </div>\n        \n        <!-- Footer -->\n        <footer class=\"text-center py-8 border-t border-gray-700\">\n            <p class=\"text-gray-400\">\n                © 2025 Basketball Betting Predictions. Powered by KenPom Analytics and Machine Learning.\n                <br>\n                <span class=\"text-sm\">For entertainment purposes only. Please gamble responsibly.</span>\n            </p>\n        </footer>\n    </main>\n    \n    <!-- Scripts -->\n    <script src=\"main.js\"></script>\n    <script>\n        // Initialize particle background\n        let particles = [];\n        \n        function setup() {\n            let canvas = createCanvas(windowWidth, windowHeight);\n            canvas.parent('particle-background');\n            \n            // Create particles\n            for (let i = 0; i < 50; i++) {\n                particles.push({\n                    x: random(width),\n                    y: random(height),\n                    vx: random(-0.5, 0.5),\n                    vy: random(-0.5, 0.5),\n                    size: random(2, 6),\n                    opacity: random(0.1, 0.3)\n                });\n            }\n        }\n        \n        function draw() {\n            clear();\n            \n            // Update and draw particles\n            for (let particle of particles) {\n                particle.x += particle.vx;\n                particle.y += particle.vy;\n                \n                // Wrap around edges\n                if (particle.x < 0) particle.x = width;\n                if (particle.x > width) particle.x = 0;\n                if (particle.y < 0) particle.y = height;\n                if (particle.y > height) particle.y = 0;\n                \n                // Draw particle\n                fill(0, 168, 255, particle.opacity * 255);\n                noStroke();\n                ellipse(particle.x, particle.y, particle.size);\n            }\n            \n            // Draw connections\n            for (let i = 0; i < particles.length; i++) {\n                for (let j = i + 1; j < particles.length; j++) {\n                    let d = dist(particles[i].x, particles[i].y, particles[j].x, particles[j].y);\n                    if (d < 100) {\n                        stroke(0, 168, 255, (1 - d / 100) * 50);\n                        strokeWeight(1);\n                        line(particles[i].x, particles[i].y, particles[j].x, particles[j].y);\n                    }\n                }\n            }\n        }\n        \n        function windowResized() {\n            resizeCanvas(windowWidth, windowHeight);\n        }\n        \n        // Initialize the application\n        if (window.basketballPredictions) {\n            // The application will handle loading automatically\n            console.log('Basketball Predictions App initialized');\n        } else {\n            // Fallback for demo purposes\n            setTimeout(() => {\n                document.getElementById('loading-state').classList.add('hidden');\n                document.getElementById('predictions-container').classList.remove('hidden');\n                \n                // Animate counters with demo data\n                animateValue(document.getElementById('today-games'), 0, 8, 1000);\n                animateValue(document.getElementById('strong-plays'), 0, 3, 1000);\n                animateValue(document.getElementById('model-accuracy'), 0, 72, 1000, '%');\n                animateValue(document.getElementById('roi-percent'), 0, 12, 1000, '%');\n                animateValue(document.getElementById('live-games-count'), 0, 8, 1000);\n            }, 2000);\n        }\n        \n        // Event listeners\n        document.getElementById('refresh-predictions').addEventListener('click', function() {\n            const spinner = document.getElementById('refresh-spinner');\n            const button = this;\n            \n            spinner.classList.remove('hidden');\n            button.disabled = true;\n            \n            // Refresh predictions\n            if (window.basketballPredictions) {\n                window.basketballPredictions.generateDailyPredictions().then(() => {\n                    spinner.classList.add('hidden');\n                    button.disabled = false;\n                    document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();\n                });\n            } else {\n                // Fallback for demo\n                setTimeout(() => {\n                    spinner.classList.add('hidden');\n                    button.disabled = false;\n                    document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();\n                    \n                    // Hide loading and show predictions\n                    document.getElementById('loading-state').classList.add('hidden');\n                    document.getElementById('predictions-container').classList.remove('hidden');\n                }, 2000);\n            }\n        });\n        \n        document.getElementById('export-predictions').addEventListener('click', function() {\n            alert('Export functionality - Coming Soon!');\n        });\n    </script>\n</body>\n</html>
